@@ -1,5 +1,5 @@
 /*
-Copyright 2016 Anonymous researcher(s)
+Copyright 2016 Matthieu Courbariaux
 
 This file is part of BinaryNet.
 
