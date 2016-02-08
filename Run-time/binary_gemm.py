@@ -226,7 +226,7 @@ class DenseLayer(lasagne.layers.DenseLayer):
     
 # Test suite
 if __name__ == "__main__":   
-    N = 4096
+    N = 8192
     m = N
     n = N
     k = N
@@ -253,16 +253,16 @@ if __name__ == "__main__":
     print("Theano time = "+str(dot1_duration)+"s")
     
     start_time = time.time()
-    c2 = dot2(a,b)
-    dot2_duration = time.time() - start_time
-    # print c2[0][0]
-    print("Baseline kernel time = "+str(dot2_duration)+"s")
-    
-    start_time = time.time()
     c3 = dot3(a,b)
     dot3_duration = time.time() - start_time
     # print c3[0][0]
     print("XNOR kernel time = "+str(dot3_duration)+"s")
+    
+    start_time = time.time()
+    c2 = dot2(a,b)
+    dot2_duration = time.time() - start_time
+    # print c2[0][0]
+    print("Baseline kernel time = "+str(dot2_duration)+"s")
     
     # Asserting the kernels are giving the same output
     print "np.mean(np.absolute(c1-c3)) = " + str(np.mean(np.absolute(c1-c3)))
