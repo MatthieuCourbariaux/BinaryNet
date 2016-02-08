@@ -78,8 +78,9 @@ class Gemm(cuda.GpuOp):
             # dimensions
             m = A.shape[0]
             n = A.shape[1]
-            assert n == B.shape[0] # Otherwise GEMM is impossible
             k = B.shape[1]
+            assert n == B.shape[0] # Otherwise GEMM is impossible
+            assert n%16 == 0 # Block size
             
             # output
             output_shape = (m, k)
@@ -88,10 +89,10 @@ class Gemm(cuda.GpuOp):
             if C[0] is None or C[0].shape != output_shape:
                 C[0] = cuda.CudaNdarray.zeros(output_shape)
             
-            # Launching GEMM GPU kernel
+            # Launching GEMM GPU kernel            
             block_size = 16
             block = (block_size,block_size,1)
-            grid = ((k + block_size -1) / block_size, (m + block_size -1) / block_size) # better too many threads than too little
+            grid = (k / block_size+1, m / block_size+1) # better too many blocks than too little
             gemm_kernel(A,B,C[0], np.intc(m), np.intc(n), np.intc(k), block= block, grid=grid)
             
         thunk.inputs = inputs
@@ -151,9 +152,9 @@ class XnorGemm(cuda.GpuOp):
             # dimensions
             m = A.shape[0]
             n = A.shape[1]
-            assert n == B.shape[0] # Otherwise GEMM is impossible
-            assert n%32 == 0 # Otherwise concatenation is not supported
             k = B.shape[1]
+            assert n == B.shape[0] # Otherwise GEMM is impossible
+            assert n%(32*16) == 0 # Concatenation and block size
             
             # output
             output_shape = (m, k)
@@ -176,10 +177,10 @@ class XnorGemm(cuda.GpuOp):
             grid = (k/block_size+1,1)
             concatenate_cols_kernel(B,Bc, np.intc(n), np.intc(k), block= block, grid=grid)
             
-            # Launching XNOR_GEMM GPU kernel
+            # Launching xnor_kernel
             block_size = 16
             block = (block_size,block_size,1)
-            grid = (k / block_size + 1, m / block_size + 1) # better too many threads than too little
+            grid = (k / block_size + 1, m / block_size + 1) # better too many blocks than too little
             xnor_kernel(Ac,Bc,C[0], np.intc(m), np.intc(n/32.), np.intc(k), block= block, grid=grid)
             
         thunk.inputs = inputs
@@ -213,6 +214,9 @@ class DenseLayer(lasagne.layers.DenseLayer):
         if self.kernel == "baseline":
             activation = gemm(input, self.W)
         
+        if self.kernel == "theano":
+            activation = T.dot(input, self.W)
+        
         if self.kernel == "xnor":
             activation = xnor_gemm(input, self.W)
         
@@ -226,9 +230,9 @@ if __name__ == "__main__":
     m = N
     n = N
     k = N
-    # m = 4096
-    # n = 1024 
-    # k = 2048
+    # m = 784
+    # n = 512 
+    # k = 10
     
     A = T.fmatrix()
     B = T.fmatrix()
@@ -261,8 +265,8 @@ if __name__ == "__main__":
     print("XNOR kernel time = "+str(dot3_duration)+"s")
     
     # Asserting the kernels are giving the same output
-    print "np.mean(np.absolute(c1-c2)) = " + str(np.mean(np.absolute(c1-c2)))
+    print "np.mean(np.absolute(c1-c3)) = " + str(np.mean(np.absolute(c1-c3)))
     print "np.mean(np.absolute(c2-c3)) = " + str(np.mean(np.absolute(c2-c3)))
-    print "np.allclose(c1, c2) = " + str(np.allclose(c1, c2))
+    print "np.allclose(c1, c3) = " + str(np.allclose(c1, c3))
     print "np.allclose(c2, c3) = " + str(np.allclose(c2, c3))
     

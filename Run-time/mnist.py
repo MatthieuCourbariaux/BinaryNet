@@ -51,14 +51,9 @@ if __name__ == "__main__":
     n_hidden_layers = 3
     print("n_hidden_layers = "+str(n_hidden_layers))
     
-    # Dropout parameters
-    dropout_in = .2 # 0. means no dropout
-    print("dropout_in = "+str(dropout_in))
-    dropout_hidden = .5
-    print("dropout_hidden = "+str(dropout_hidden))
-    
     # kernel = "baseline"
     kernel = "xnor"
+    # kernel = "theano"
     print("kernel = "+ kernel)
     
     print('Loading MNIST dataset...')
@@ -75,8 +70,7 @@ if __name__ == "__main__":
     input = T.matrix('inputs')
     target = T.vector('targets')
 
-    mlp = lasagne.layers.InputLayer(shape=(None, 784),input_var=input)   
-    mlp = lasagne.layers.DropoutLayer(mlp, p=dropout_in)
+    mlp = lasagne.layers.InputLayer(shape=(None, 784),input_var=input)
     
     # Input layer is not binary -> use baseline kernel in first hidden layer
     mlp = binary_gemm.DenseLayer(
@@ -86,7 +80,6 @@ if __name__ == "__main__":
             kernel = "baseline")               
         
     mlp = lasagne.layers.BatchNormLayer(mlp)
-    mlp = lasagne.layers.DropoutLayer(mlp, p=dropout_hidden)
     mlp = lasagne.layers.NonlinearityLayer(mlp,nonlinearity=binary_gemm.SignTheano)
     
     for k in range(1,n_hidden_layers):
@@ -98,7 +91,6 @@ if __name__ == "__main__":
                 kernel = kernel)               
         
         mlp = lasagne.layers.BatchNormLayer(mlp)
-        mlp = lasagne.layers.DropoutLayer(mlp, p=dropout_hidden)
         mlp = lasagne.layers.NonlinearityLayer(mlp,nonlinearity=binary_gemm.SignTheano)
     
     mlp = binary_gemm.DenseLayer(

@@ -17,22 +17,68 @@ You should have received a copy of the GNU General Public License
 along with BinaryNet.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <stdio.h>
+#define BLOCK_SIZE 16
+
 // CUDA tutorial: http://www.nvidia.com/docs/IO/116711/sc11-cuda-c-basics.pdf
-__global__ void gemm(float *a,float *b, float *c, int m, int n, int k)
-{ 
-    int row = blockIdx.y * blockDim.y + threadIdx.y; 
-    int col = blockIdx.x * blockDim.x + threadIdx.x;
+// http://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#shared-memory
+// A is shape (m,n), B is shape (n,k) and C is shape (m,k)
+__global__ void gemm(float* A, float* B, float* C, int m, int n, int k) {
+
+    // Block row and column
+    int blockRow = blockIdx.y;
+    int blockCol = blockIdx.x;
     
-    if( col < k && row < m) 
-    {
-        float sum = 0;
-        for(int i = 0; i < n; i++) 
-        {
-            sum += a[row * n + i] * b[i * k + col];
-        }
-        c[row * k + col] = sum;
+    // Thread row and column within Csub
+    int row = threadIdx.y;
+    int col = threadIdx.x;
+
+    // Each thread block computes one sub-matrix Csub of C
+    float* Csub = &C[BLOCK_SIZE * k * blockRow + BLOCK_SIZE * blockCol];
+
+    // Shared memory used to store Asub and Bsub respectively
+    __shared__ float As[BLOCK_SIZE][BLOCK_SIZE];
+    __shared__ float Bs[BLOCK_SIZE][BLOCK_SIZE];
+    
+    // Each thread computes one element of Csub
+    // by accumulating results into Cvalue
+    // block_size = 16 -> 256 threads, one per Csub element
+    float Cvalue = 0.0;
+    
+    // Loop over all the sub-matrices of A and B that are
+    // required to compute Csub
+    // Multiply each pair of sub-matrices together
+    // and accumulate the results
+    for (int i = 0; i < (n / BLOCK_SIZE); ++i) {
+    
+        // Get sub-matrix Asub of A
+        float* Asub = &A[BLOCK_SIZE * blockRow * n + BLOCK_SIZE * i];
+        
+        // Get sub-matrix Bsub of B
+        float* Bsub = &B[BLOCK_SIZE * k * i + BLOCK_SIZE * blockCol];
+        
+        // Load Asub and Bsub from device memory to shared memory
+        // Each thread loads one element of each sub-matrix
+        As[row][col] = Asub[row*n+col];
+        Bs[row][col] = Bsub[row*k+col];
+    
+        // Synchronize to make sure the sub-matrices are loaded
+        // before starting the computation
+        __syncthreads();
+        
+        // Multiply Asub and Bsub together
+        for (int j = 0; j < BLOCK_SIZE; ++j) Cvalue += As[row][j] * Bs[j][col]; 
+        
+        // Synchronize to make sure that the preceding
+        // computation is done before loading two new
+        // sub-matrices of A and B in the next iteration
+        __syncthreads();
     }
-} 
+    
+    // Write Csub to device memory
+    // Each thread writes one element
+    if(col + blockCol* BLOCK_SIZE< k && row + blockRow* BLOCK_SIZE< m) Csub[row*k+col] = Cvalue;
+}
 
 // 32 single float array ->  32 bits unsigned int
 __device__ unsigned int concatenate(float* array)
@@ -96,19 +142,61 @@ __global__ void deconcatenate_rows_kernel(unsigned int *a, float *b, int size)
     }
 }
 
-__global__ void xnor_gemm(unsigned int *a, unsigned int *b, float *c, int m, int n, int k)
-{ 
-    int row = blockIdx.y * blockDim.y + threadIdx.y; 
-    int col = blockIdx.x * blockDim.x + threadIdx.x;
+// A is shape (m,n), B is shape (n,k) and C is shape (m,k)
+__global__ void xnor_gemm(unsigned int* A, unsigned int* B, float* C, int m, int n, int k) {
     
-    if( col < k && row < m) 
-    {   
+    // Block row and column
+    int blockRow = blockIdx.y;
+    int blockCol = blockIdx.x;
+    
+    // Thread row and column within Csub
+    int row = threadIdx.y;
+    int col = threadIdx.x;
+
+    // Each thread block computes one sub-matrix Csub of C
+    float* Csub = &C[BLOCK_SIZE * k * blockRow + BLOCK_SIZE * blockCol];
+
+    // Shared memory used to store Asub and Bsub respectively
+    __shared__ unsigned int As[BLOCK_SIZE][BLOCK_SIZE];
+    __shared__ unsigned int Bs[BLOCK_SIZE][BLOCK_SIZE];
+    
+    // Each thread computes one element of Csub
+    // by accumulating results into Cvalue
+    // block_size = 16 -> 256 threads, one per Csub element
+    float Cvalue = 0.0;
+    
+    // Loop over all the sub-matrices of A and B that are
+    // required to compute Csub
+    // Multiply each pair of sub-matrices together
+    // and accumulate the results
+    for (int i = 0; i < (n / BLOCK_SIZE); ++i) {
+    
+        // Get sub-matrix Asub of A
+        unsigned int* Asub = &A[BLOCK_SIZE * blockRow * n + BLOCK_SIZE * i];
+        
+        // Get sub-matrix Bsub of B
+        unsigned int* Bsub = &B[BLOCK_SIZE * k * i + BLOCK_SIZE * blockCol];
+        
+        // Load Asub and Bsub from device memory to shared memory
+        // Each thread loads one element of each sub-matrix
+        As[row][col] = Asub[row*n+col];
+        Bs[row][col] = Bsub[row*k+col];
+    
+        // Synchronize to make sure the sub-matrices are loaded
+        // before starting the computation
+        __syncthreads();
+        
+        // Multiply Asub and Bsub together
         // THIS IS THE MOST INTERESTING PART
-        float sum = 0;
-        for(int i = 0; i < n; i++) 
-        {   
-            sum += (float)__popc(~(a[row * n + i]^b[i * k + col]));
-        }
-        c[row * k + col] = 2*sum-32*n;
+        for (int j = 0; j < BLOCK_SIZE; ++j) Cvalue += (float)__popc(~(As[row][j]^Bs[j][col]));
+        
+        // Synchronize to make sure that the preceding
+        // computation is done before loading two new
+        // sub-matrices of A and B in the next iteration
+        __syncthreads();
     }
+    
+    // Write Csub to device memory
+    // Each thread writes one element
+    if(col + blockCol* BLOCK_SIZE< k && row + blockRow* BLOCK_SIZE< m) Csub[row*k+col] = 2*Cvalue-32*n;
 }
