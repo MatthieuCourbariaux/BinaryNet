@@ -163,7 +163,7 @@ __global__ void xnor_gemm(unsigned int* A, unsigned int* B, float* C, int m, int
     // Each thread computes one element of Csub
     // by accumulating results into Cvalue
     // block_size = 16 -> 256 threads, one per Csub element
-    float Cvalue = 0.0;
+    unsigned int Cvalue = 0;
     
     // Loop over all the sub-matrices of A and B that are
     // required to compute Csub
@@ -188,7 +188,7 @@ __global__ void xnor_gemm(unsigned int* A, unsigned int* B, float* C, int m, int
         
         // Multiply Asub and Bsub together
         // THIS IS THE MOST INTERESTING PART
-        for (int j = 0; j < BLOCK_SIZE; ++j) Cvalue += (float)__popc(~(As[row][j]^Bs[j][col]));
+        for (int j = 0; j < BLOCK_SIZE; ++j) Cvalue += __popc(~(As[row][j]^Bs[j][col]));
         
         // Synchronize to make sure that the preceding
         // computation is done before loading two new
@@ -198,5 +198,5 @@ __global__ void xnor_gemm(unsigned int* A, unsigned int* B, float* C, int m, int
     
     // Write Csub to device memory
     // Each thread writes one element
-    if(col + blockCol* BLOCK_SIZE< k && row + blockRow* BLOCK_SIZE< m) Csub[row*k+col] = 2*Cvalue-32*n;
+    if(col + blockCol* BLOCK_SIZE< k && row + blockRow* BLOCK_SIZE< m) Csub[row*k+col] = 2*(float)Cvalue-32*n;
 }
