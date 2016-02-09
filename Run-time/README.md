@@ -17,9 +17,9 @@ BinaryNet: Training Deep Neural Networks with Weights and Activations Constraine
 
     python binary_gemm.py
     
-This script performs 4096x4096x4096 matrix-matrix multiplications with our XNOR and baseline GPU kernels.
+This script performs 8192x8192x8192 matrix multiplications with our XNOR and baseline GPU kernels.
 The two kernels return exactly the same output when their inputs are constrained to -1 or +1 (but not otherwise).
-The XNOR kernel is about 15x faster than the baseline kernel on a GTX750 Nvidia GPU.
+The XNOR kernel is about 14x faster than the baseline kernel and 2.5x faster than Theano on a GTX750 Nvidia GPU.
 
 ## MNIST MLP
 
@@ -31,6 +31,6 @@ Then, you can run the trained MNIST MLP using our XNOR GPU kernel:
 
     python mnist.py
     
-The execution time largely depends on your GPU (between 0.5s and 2s).
+The execution time largely depends on your GPU (between 0.4s and 1.5s).
 The test error rate should be around 0.96%.
-You can compare these results with the baseline kernel by modifying the 60-61th lines of the script.
+You can compare these results with the baseline kernel or Theano by modifying the line ~60 in the script.
