@@ -63,7 +63,7 @@ class Gemm(cuda.GpuOp):
 
     def make_thunk(self, node, storage_map, _, _2):
         
-        mod = SourceModule(open("binary_gemm.cu").read())
+        mod = SourceModule(open("binary_kernels.cu").read())
         gemm_kernel = mod.get_function("gemm")
     
         inputs = [storage_map[v] for v in node.inputs]
@@ -134,7 +134,7 @@ class XnorGemm(cuda.GpuOp):
 
     def make_thunk(self, node, storage_map, _, _2):
         
-        mod = SourceModule(open("binary_gemm.cu").read())
+        mod = SourceModule(open("binary_kernels.cu").read())
         concatenate_rows_kernel = mod.get_function("concatenate_rows_kernel")
         concatenate_cols_kernel = mod.get_function("concatenate_cols_kernel")
         xnor_kernel = mod.get_function("xnor_gemm")
@@ -226,7 +226,8 @@ class DenseLayer(lasagne.layers.DenseLayer):
     
 # Test suite
 if __name__ == "__main__":   
-    N = 8192
+    # N = 8192
+    N = 4096
     m = N
     n = N
     k = N

@@ -142,6 +142,17 @@ __global__ void deconcatenate_rows_kernel(unsigned int *a, float *b, int size)
     }
 }
 
+__device__ __forceinline__ unsigned xnor_popc(unsigned a, unsigned b)
+{
+    unsigned result;
+    asm("{\n\t"
+        ".reg .u32 xnor;\n\t"
+        "lop3.b32 xnor, %1, %2, 0, 0xc3;\n\t"
+        "popc.b32 %0, xnor;\n\t"
+        "}": "=r"(result) : "r"(a), "r"(b));
+    return result;
+}
+
 // A is shape (m,n), B is shape (n,k) and C is shape (m,k)
 __global__ void xnor_gemm(unsigned int* A, unsigned int* B, float* C, int m, int n, int k) {
     
@@ -188,7 +199,8 @@ __global__ void xnor_gemm(unsigned int* A, unsigned int* B, float* C, int m, int
         
         // Multiply Asub and Bsub together
         // THIS IS THE MOST INTERESTING PART
-        for (int j = 0; j < BLOCK_SIZE; ++j) Cvalue += __popc(~(As[row][j]^Bs[j][col]));
+        // for (int j = 0; j < BLOCK_SIZE; ++j) Cvalue += __popc(~(As[row][j]^Bs[j][col]));
+        for (int j = 0; j < BLOCK_SIZE; ++j) Cvalue += xnor_popc(As[row][j], Bs[j][col]);
         
         // Synchronize to make sure that the preceding
         // computation is done before loading two new

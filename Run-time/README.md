@@ -15,7 +15,7 @@ BinaryNet: Training Deep Neural Networks with Weights and Activations Constraine
 
 ##  Matrix multiplication
 
-    python binary_gemm.py
+    python binary_ops.py
     
 This script performs 8192x8192x8192 matrix multiplications with our XNOR and baseline GPU kernels.
 The two kernels return exactly the same output when their inputs are constrained to -1 or +1 (but not otherwise).

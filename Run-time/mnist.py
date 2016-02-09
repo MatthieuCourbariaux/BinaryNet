@@ -33,7 +33,7 @@ import lasagne
 import cPickle as pickle
 import gzip
 
-import binary_gemm
+import binary_ops
 
 from pylearn2.datasets.mnist import MNIST
 from pylearn2.utils import serial
@@ -73,27 +73,27 @@ if __name__ == "__main__":
     mlp = lasagne.layers.InputLayer(shape=(None, 784),input_var=input)
     
     # Input layer is not binary -> use baseline kernel in first hidden layer
-    mlp = binary_gemm.DenseLayer(
+    mlp = binary_ops.DenseLayer(
             mlp,
             nonlinearity=lasagne.nonlinearities.identity,
             num_units=num_units,
             kernel = "baseline")               
         
     mlp = lasagne.layers.BatchNormLayer(mlp)
-    mlp = lasagne.layers.NonlinearityLayer(mlp,nonlinearity=binary_gemm.SignTheano)
+    mlp = lasagne.layers.NonlinearityLayer(mlp,nonlinearity=binary_ops.SignTheano)
     
     for k in range(1,n_hidden_layers):
         
-        mlp = binary_gemm.DenseLayer(
+        mlp = binary_ops.DenseLayer(
                 mlp,
                 nonlinearity=lasagne.nonlinearities.identity,
                 num_units=num_units,
                 kernel = kernel)               
         
         mlp = lasagne.layers.BatchNormLayer(mlp)
-        mlp = lasagne.layers.NonlinearityLayer(mlp,nonlinearity=binary_gemm.SignTheano)
+        mlp = lasagne.layers.NonlinearityLayer(mlp,nonlinearity=binary_ops.SignTheano)
     
-    mlp = binary_gemm.DenseLayer(
+    mlp = binary_ops.DenseLayer(
                 mlp, 
                 nonlinearity=lasagne.nonlinearities.identity,
                 num_units=10,
@@ -118,7 +118,7 @@ if __name__ == "__main__":
     for param in params:
         # print param.name
         if param.name == "W":
-            param.set_value(binary_gemm.SignNumpy(param.get_value()))
+            param.set_value(binary_ops.SignNumpy(param.get_value()))
     
     print('Running...')
     
