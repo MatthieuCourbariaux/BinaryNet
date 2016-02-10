@@ -142,6 +142,7 @@ __global__ void deconcatenate_rows_kernel(unsigned int *a, float *b, int size)
     }
 }
 
+// Thank you Scott!
 __device__ __forceinline__ unsigned xnor_popc(unsigned a, unsigned b)
 {
     unsigned result;

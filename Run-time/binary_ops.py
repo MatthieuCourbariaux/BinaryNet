@@ -226,8 +226,8 @@ class DenseLayer(lasagne.layers.DenseLayer):
     
 # Test suite
 if __name__ == "__main__":   
-    # N = 8192
-    N = 4096
+    N = 8192
+    # N = 4096
     m = N
     n = N
     k = N
@@ -270,4 +270,5 @@ if __name__ == "__main__":
     print "np.mean(np.absolute(c2-c3)) = " + str(np.mean(np.absolute(c2-c3)))
     print "np.allclose(c1, c3) = " + str(np.allclose(c1, c3))
     print "np.allclose(c2, c3) = " + str(np.allclose(c2, c3))
+
     
