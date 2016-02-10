@@ -5,7 +5,6 @@
 This subrepository enables the reproduction of the benchmark results reported in the article:  
 [BinaryNet: Training Deep Neural Networks with Weights and Activations Constrained to +1 or -1.](http://arxiv.org/abs/1602.02830)
 
-
 ## Requirements
 
 * Python, Numpy, Scipy
