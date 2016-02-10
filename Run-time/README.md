@@ -11,7 +11,7 @@ This subrepository demonstrates the XNOR and baseline GPU kernels described in t
 * [Theano](http://deeplearning.net/software/theano/install.html) (Bleeding edge version)
 * [Pylearn2](http://deeplearning.net/software/pylearn2/)
 * [Lasagne](http://lasagne.readthedocs.org/en/latest/user/installation.html)
-* Maxwell Nvidia GPU (not optional)
+* Nvidia GPU (not optional)
 
 ##  Matrix multiplication
 
