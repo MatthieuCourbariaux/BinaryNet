@@ -1,3 +1,19 @@
+# Copyright 2016 Matthieu Courbariaux
+
+# This file is part of BinaryNet.
+
+# BinaryNet is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# BinaryNet is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with BinaryNet.  If not, see <http://www.gnu.org/licenses/>.
 
 import time
 
@@ -42,13 +58,10 @@ def sign(x):
     
 if __name__ == "__main__":   
     
-    # Select GPU
-    dev = cuda.Device(1) # you may want to change this to 0
-    context = dev.make_context()
+    context = pycuda.autoinit.context
     
     print "Building the kernels..."
     
-    # mod = SourceModule(open("binary_kernels.cu").read(), arch="sm_50")
     mod = SourceModule(open("binary_kernels.cu").read())
     gemm_kernel = mod.get_function("gemm")
     concatenate_rows_kernel = mod.get_function("concatenate_rows_kernel")
@@ -132,6 +145,3 @@ if __name__ == "__main__":
     print "Comparing the results..."
     
     print " np.allclose(C1, C2) = " + str(np.allclose(C1, C2))
-    
-    # deactivate context
-    context.pop()
