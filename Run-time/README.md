@@ -15,17 +15,11 @@ This subrepository demonstrates the XNOR and baseline GPU kernels described in t
 
 ##  Matrix multiplication
 
-    python binary_kernels.py
+    nvcc benchmark-cublas.cu -std=c++11 -lcublas && ./a.out
     
-This script performs 8192x8192x8192 matrix multiplications with the XNOR and baseline GPU kernels.
-The two kernels return exactly the same output when their inputs are constrained to -1 or +1 (but not otherwise).
-**The XNOR kernel is about 22x faster than the baseline kernel** on a GTX750 Nvidia GPU.
-
-    python binary_ops.py
-    
-This script performs 8192x8192x8192 matrix multiplications with our kernels and Theano's.
-The difference with the previous script is that all the kernels are wrapped in Theano operators.
-The wrapped XNOR kernel is about 14x faster than the wrapped baseline kernel and **2.5x faster than Theano's** on a GTX750 Nvidia GPU.
+This benchmark performs 8192x8192x8192 matrix multiplications with our two kernels and cuBLAS.
+The three kernels return exactly the same output when their inputs are constrained to -1 or +1 (but not otherwise).
+**The XNOR kernel is about 23x faster than the baseline kernel and 3.4x faster than cuBLAS** on a GTX750 Nvidia GPU.
 
 ## MNIST MLP
 
