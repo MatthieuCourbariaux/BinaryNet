@@ -99,7 +99,8 @@ int main() {
 
 		auto start = chrono::high_resolution_clock::now();
 		float alpha = 1.0, beta = 0.0;
-		cublasSgemm(handle, CUBLAS_OP_T, CUBLAS_OP_T, N, N, N, &alpha, fA, N, fB, N, &beta, fC, N);
+		// cublas use column-major
+		cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, N, N, N, &alpha, fB, N, fA, N, &beta, fC, N);
 		cudaDeviceSynchronize();
 		auto end = chrono::high_resolution_clock::now();
 		chrono::duration<double> diff = end - start;
@@ -115,11 +116,11 @@ int main() {
 		for (int i = 0; i < N * N; i ++) {
 			float diff = p1[i] - p2[i];
 			if (fabs(diff) > 1e-6) {
-				return false;
 				printf("%f\n", diff);
+				return false;
 			}
-			return true;
 		}
+		return true;
 	};
 
 	printf("success: %d\n", check_result(result_gemm, result_xnor));
