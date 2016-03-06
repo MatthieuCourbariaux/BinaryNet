@@ -43,9 +43,6 @@ class Gemm(cuda.GpuOp):
 
     def __str__(self):
         return self.__class__.__name__
-
-    def output_type(self, inp):
-        raise NotImplementedError
     
     def make_node(self, inp1, inp2):
         inp1 = cuda.basic_ops.gpu_contiguous(cuda.basic_ops.as_cuda_ndarray_variable(inp1))
@@ -114,9 +111,6 @@ class XnorGemm(cuda.GpuOp):
 
     def __str__(self):
         return self.__class__.__name__
-
-    def output_type(self, inp):
-        raise NotImplementedError
     
     def make_node(self, inp1, inp2):
         inp1 = cuda.basic_ops.gpu_contiguous(cuda.basic_ops.as_cuda_ndarray_variable(inp1))
@@ -226,8 +220,8 @@ class DenseLayer(lasagne.layers.DenseLayer):
     
 # Test suite
 if __name__ == "__main__":   
-    N = 8192
-    # N = 4096
+    # N = 8192
+    N = 4096
     m = N
     n = N
     k = N

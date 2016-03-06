@@ -7,7 +7,7 @@ This subrepository enables the reproduction of the benchmark results reported in
 
 ## Requirements
 
-* Python, Numpy, Scipy
+* Python 2.7, Numpy, Scipy
 * [Theano](http://deeplearning.net/software/theano/install.html)
 * [Pylearn2](http://deeplearning.net/software/pylearn2/)
 * [Lasagne](http://lasagne.readthedocs.org/en/latest/user/installation.html)
