@@ -9,10 +9,12 @@ This subrepository enables the reproduction of the benchmark results reported in
 
 * Python 2.7, Numpy, Scipy
 * [Theano](http://deeplearning.net/software/theano/install.html)
-* [Pylearn2](http://deeplearning.net/software/pylearn2/)
-* [Lasagne](http://lasagne.readthedocs.org/en/latest/user/installation.html)
-* [PyTables](http://www.pytables.org/usersguide/installation.html) (only for the SVHN dataset)
 * A fast Nvidia GPU (or a large amount of patience)
+* Setting your [Theano flags](http://deeplearning.net/software/theano/library/config.html) to use the GPU
+* [Pylearn2](http://deeplearning.net/software/pylearn2/)
+* [Downloading the datasets](https://github.com/lisa-lab/pylearn2/tree/master/pylearn2/scripts/datasets) you need
+* [PyTables](http://www.pytables.org/usersguide/installation.html) (only for the SVHN dataset)
+* [Lasagne](http://lasagne.readthedocs.org/en/latest/user/installation.html)
 
 ## MNIST MLP
 
