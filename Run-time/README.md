@@ -8,10 +8,12 @@ This subrepository demonstrates the XNOR and baseline GPU kernels described in t
 ## Requirements
 
 * Python 2.7, Numpy, Scipy
-* [Theano](http://deeplearning.net/software/theano/install.html) (Bleeding edge version)
-* [Pylearn2](http://deeplearning.net/software/pylearn2/)
-* [Lasagne](http://lasagne.readthedocs.org/en/latest/user/installation.html)
+* [Theano](http://deeplearning.net/software/theano/install.html)
 * Nvidia GPU (not optional)
+* Setting your [Theano flags](http://deeplearning.net/software/theano/library/config.html) to use the GPU
+* [Pylearn2](http://deeplearning.net/software/pylearn2/)
+* [Downloading MNIST](https://github.com/lisa-lab/pylearn2/blob/master/pylearn2/scripts/datasets/download_mnist.py)
+* [Lasagne](http://lasagne.readthedocs.org/en/latest/user/installation.html)
 
 ##  Matrix multiplication
 
