@@ -1,3 +1,13 @@
+#### Update 2018-11-28: 
+
+For those having issues running the code, here is my best guest about some compatible versions of Theano, Lasagne, Pylearn2 and PyTables:
+* https://github.com/Theano/Theano/commit/dac4da86a544dc69a6b848a1ea2f0e2e29c8d20b 
+* https://github.com/Lasagne/Lasagne/commit/6a559dd54e0cc4930c9b29319fe45350d1a651e6 
+* https://github.com/lisa-lab/pylearn2/commit/fe9beee9b922c97bd8e5dd2ac023e1def229da31 
+* https://github.com/PyTables/PyTables/commit/73221baf85afda517bc0646f448ffb3f8e51dd81 
+
+I plan to add a pip config file to the repo in a few weeks.
+
 # Train-time
 
 ## Motivations
